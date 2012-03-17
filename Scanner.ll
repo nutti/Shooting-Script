@@ -34,7 +34,7 @@ blank		[ \t]
 %{
 	typedef yy::Parser::token token;
 	yylloc->step();
-	std::string string_buffer
+	std::string string_buffer;
 %}
 <INITIAL>{
 	\n				{ yylloc->lines(); }
@@ -164,15 +164,16 @@ blank		[ \t]
 }
 %%
 
-void compiler::scan_begin()
+void Compiler::ScanBegin()
 {
-	if( ( yyin = fopen( file.c_str(), "r" ) ) == 0 ){
-		error( file + "can not be opened." );
+	if( ( yyin = fopen( m_File.c_str(), "r" ) ) == 0 ){
+		error( m_File + "can not be opened." );
 	}
 }
 
-void compiler::scan_end()
+void Compiler::ScanEnd()
 {
 	fclose( yyin );
 	yylex_destroy();
 }
+

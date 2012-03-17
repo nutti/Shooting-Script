@@ -28,7 +28,7 @@ private:
 		{
 			delete p;
 		}
-	}
+	};
 
 public:
 	// Constructor
@@ -66,7 +66,7 @@ public:
 	// Get contents.
 	T* operator[]( size_t index ) { return m_Nodes[ index ]; }
 	// Get contents.
-	const T* Get( size_t index ) { return m_Nodes[ index ]; }
+	const T* Get( size_t index ) const { return m_Nodes[ index ]; }
 	// Get contents.
 	const T* operator[]( size_t index ) const { return m_Nodes[ index ]; }
 };
@@ -149,9 +149,9 @@ public:
 																		m_pLeft( 0 ), m_pRight( 0 )
 	{
 	}
-	Node( const yy::Location& location, int op, std::string* pStr, Node* pNode ) :	m_Location( location ),
+	Node( const yy::location& location, int op, std::string* pStr, Node* pNode ) :	m_Location( location ),
 																					m_OP( op ),
-																					m_Value( 0 ), m_String( pStr )
+																					m_Value( 0 ), m_pString( pStr ),
 																					m_pLeft( pNode ), m_pRight( 0 )
 	{
 	}
@@ -164,14 +164,14 @@ public:
 	virtual int Push( Compiler* pCompiler ) const;
 	virtual int Pop( Compiler* pCompiler ) const;
 
-	const yy::location& GetLocation const { return m_Location };
+	const yy::location& GetLocation() const { return m_Location; }
 	int GetOP() const { return m_OP; }
 	int GetValue() const { return m_Value; }
 	const std::string& GetString() const { return *m_pString; }
-	const Node* GetLeft() const { return m_Left; }
-	const Node* GetRight() const { return m_Right; }
+	const Node* GetLeft() const { return m_pLeft; }
+	const Node* GetRight() const { return m_pRight; }
 
-	static Noe* MakeNode( Compiler& pCompiler, const yy::location& location, int op, Node* pLeft, Node* pRight = 0 );
+	static Node* MakeNode( Compiler& pCompiler, const yy::location& location, int op, Node* pLeft, Node* pRight = 0 );
 };
 
 class ValueNode : public Node
@@ -189,7 +189,7 @@ class FunctionNode : public Node
 private:
 	Args*	m_pArgs;
 public:
-	FunctionNode( const yy::location& location, std::string* pName, Args* pArgs ) : Node( location, OP_FUNCTION, name ), m_pArgs( pArgs )
+	FunctionNode( const yy::location& location, std::string* pName, Args* pArgs ) : Node( location, OP_FUNCTION, pName ), m_pArgs( pArgs )
 	{
 	}
 	~FunctionNode()
@@ -198,7 +198,7 @@ public:
 	}
 	int Push( Compiler* pCompiler ) const;
 	int Pop( Compiler* pCompiler ) const;
-}
+};
 
 class Assign
 {
@@ -265,8 +265,8 @@ private:
 	DeclList*		m_pDeclList;
 	StateList*		m_pStateList;
 public:
-	StateBlock( DeclList* pDeclList, StateList* pStateList ) :	m_DeclList( pDeclList ),
-																m_StateList( pStateList )
+	StateBlock( DeclList* pDeclList, StateList* pStateList ) :	m_pDeclList( pDeclList ),
+																m_pStateList( pStateList )
 	{
 	}
 	~StateBlock()
@@ -328,7 +328,7 @@ public:
 class NopStatement : public Statement
 {
 public:
-	NopStatement( const yy::location& location ) :	m_Location( location, NOP )
+	NopStatement( const yy::location& location ) :	Statement( location, NOP )
 	{
 	}
 	virtual void Analyze( Compiler* pCompiler );
@@ -376,12 +376,12 @@ private:
 	Statement*		m_pElseStatement;
 public:
 	IfStatement(	const yy::location& location,
-					NOde* pExpr,
+					Node* pExpr,
 					Statement* pThenStatement,
-					Statement* pElseStatement ) :	Statement( location, IF ),
-													m_pExpr( pExpr ),
-													m_pThenStatement( pThenStatement ),
-													m_pElseStatement( pElseStatement )
+					Statement* pElseStatement = NULL ) :	Statement( location, IF ),
+															m_pExpr( pExpr ),
+															m_pThenStatement( pThenStatement ),
+															m_pElseStatement( pElseStatement )
 	{
 	}
 	~IfStatement()
@@ -427,7 +427,7 @@ class WhileStatement : public Statement
 {
 private:
 	Node*			m_pExpr;
-	Statement		m_pStatement;
+	Statement*		m_pStatement;
 public:
 	WhileStatement(	const yy::location& location,
 					Node* pExpr,

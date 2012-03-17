@@ -73,7 +73,9 @@ Node* Node::MakeNode( Compiler& compiler, const yy::location& location, int op, 
 				if( pRight->m_Value == 0 ){
 					compiler.error( location, "Error : 0 division." );
 				}
-				pLeft->m_Value /= pRight->m_Value;
+				else{
+					pLeft->m_Value /= pRight->m_Value;
+				}
 				break;
 			case OP_MOD:
 				if( pRight->m_Value == 0 ){
@@ -145,8 +147,8 @@ int Node::Push( Compiler* pCompiler ) const
 {
 	switch( m_OP ){
 		case OP_NEG:
-			if( pLeft->Push( pCompiler ) == TYPE_STRING ){
-				pCompiler->error( location, "'-' can not be used to string." );
+			if( m_pLeft->Push( pCompiler ) == TYPE_STRING ){
+				pCompiler->error( m_Location, "'-' can not be used to string." );
 			}
 			pCompiler->OpNeg();
 			return TYPE_INTEGER;
@@ -158,11 +160,11 @@ int Node::Push( Compiler* pCompiler ) const
 			return TYPE_STRING;
 	}
 
-	int leftType = pLeft->Push( pCompiler );
-	int rightType = pLeft->Push( pCompiler );
+	int leftType = m_pLeft->Push( pCompiler );
+	int rightType = m_pRight->Push( pCompiler );
 
 	if( leftType != rightType ){
-		pCompiler->error( location, "Type is mismatched." );
+		pCompiler->error( m_Location, "Type is mismatched." );
 	}
 
 	// Integer operations.
@@ -220,7 +222,7 @@ int Node::Push( Compiler* pCompiler ) const
 				pCompiler->OpMod();
 				break;
 			default:
-				pCompiler->error( location, "Invalid operation." );
+				pCompiler->error( m_Location, "Invalid operation." );
 				break;
 		}
 		return TYPE_INTEGER;
@@ -250,7 +252,7 @@ int Node::Push( Compiler* pCompiler ) const
 			pCompiler->OpStrAdd();
 			break;
 		default:
-			pCompiler( location, "Invalid operation." );
+			pCompiler->error( m_Location, "Invalid operation." );
 			break;
 	}
 	return TYPE_STRING;
@@ -258,26 +260,27 @@ int Node::Push( Compiler* pCompiler ) const
 
 int Node::Pop( Compiler* pCompiler ) const
 {
-	pCompiler->error( location, "Invalid call" );
+	pCompiler->error( m_Location, "Invalid call" );
 	return TYPE_INTEGER;
 }
 
 int ValueNode::Push( Compiler* pCompiler ) const
 {
 	if( m_OP != OP_VALUE ){
-		pCompiler->error( location, "Value is not registered." );
+		pCompiler->error( m_Location, "Value is not registered." );
 	}
 	else{
 		const ValueTag* pTag = pCompiler->GetValueTag( *m_pString );
+		std::cout << *m_pString << std::endl;
 		if( pTag == 0 ){
-			pCompiler->error( location, "Variable : " + *m_pString + " is not decleared." );
+			pCompiler->error( m_Location, "Variable : " + *m_pString + " is not decleared." );
 		}
 		else{
 			// Array or reference.
 			if( pTag->m_Type >= TYPE_INTEGER_REF ){
 				// Array.
-				if( pLeft ){
-					pLeft->Push( pCompiler );
+				if( m_pLeft ){
+					m_pLeft->Push( pCompiler );
 					pCompiler->PushLocalArrayRef( pTag->m_Addr );
 				}
 				else{
@@ -287,8 +290,8 @@ int ValueNode::Push( Compiler* pCompiler ) const
 			}
 			// Gloval variable.
 			if( pTag->m_Global ){
-				if( pLeft ){
-					pLeft->Push( pCompiler );
+				if( m_pLeft ){
+					m_pLeft->Push( pCompiler );
 					pCompiler->PushArray( pTag->m_Addr );
 				}
 				
@@ -298,8 +301,8 @@ int ValueNode::Push( Compiler* pCompiler ) const
 			}
 			// Local variable.
 			else{
-				if( pLeft ){
-					pLeft->Push( pCompiler );
+				if( m_pLeft ){
+					m_pLeft->Push( pCompiler );
 					pCompiler->PushLocalArray( pTag->m_Addr );
 				}
 				else{
@@ -315,12 +318,12 @@ int ValueNode::Push( Compiler* pCompiler ) const
 int ValueNode::Pop( Compiler* pCompiler ) const
 {
 	if( m_OP != OP_VALUE ){
-		pCompiler->error( location, "Value is not registered." );
+		pCompiler->error( m_Location, "Value is not registered." );
 	}
 	else{
 		const ValueTag* pTag = pCompiler->GetValueTag( *m_pString );
 		if( pTag == 0 ){
-			pCompiler->error( location, "Variable : " + *m_pString + " is not decleared." );
+			pCompiler->error( m_Location, "Variable : " + *m_pString + " is not decleared." );
 		}
 		else{
 			if( pTag->m_Type >= TYPE_INTEGER_REF ){
@@ -373,8 +376,8 @@ struct SetArg
 	void operator()( Node* pNode ) const
 	{
 		int type = m_pFunc->GetArg( m_Index++ );
-		if( m_Type >= TYPE_INTEGER_REF ){
-			if( pNode->OP() != OP_VALUE ){
+		if( type >= TYPE_INTEGER_REF ){
+			if( pNode->GetOP() != OP_VALUE ){
 				m_pCompiler->error( pNode->GetLocation(), "Value is not registered." );
 			}
 			else{
@@ -394,17 +397,17 @@ struct SetArg
 					}
 				}
 				else{
-					if( ToRef( pTag->m_Type ) != type ){
-						m_pCompiler->error( pNode->error( pNode->GetLocation(), "Type is mismatched." ) );
+					if( TypeToRef( pTag->m_Type ) != type ){
+						m_pCompiler->error( pNode->GetLocation(), "Type is mismatched." );
 					}
 					int addr = pTag->m_Addr;
 					// Global variable.
 					if( pTag->m_Global ){
-						m_Addr |= VM::VCPU::GlobalFlag;
+						addr |= VM::VCPU::GLOBAL_FLAG;
 					}
 					if( pNode->GetLeft() ){
 						// Expression
-						if( pNode->GetLeft()->OP() == OP_CONST ){
+						if( pNode->GetLeft()->GetOP() == OP_CONST ){
 							m_pCompiler->PushAddr( addr + pNode->GetLeft()->GetValue() );
 						}
 						// Array
@@ -431,37 +434,37 @@ int FunctionNode::Push( Compiler* pCompiler ) const
 {
 	const FunctionTag* pTag = pCompiler->GetFunctionTag( *m_pString );
 	if( pTag == NULL ){
-		m_pCompiler->error( m_Location, "Variable : " + *m_pString + " is not registered." );
+		pCompiler->error( m_Location, "Variable : " + *m_pString + " is not registered." );
 	}
 	
-	int argSize = m_Args ? m_Args->Size() : 0;
+	int argSize = m_pArgs ? m_pArgs->Size() : 0;
 	if( pTag->ArgSize() != argSize ){
-		m_pCompiler->error( m_Location, "Size of argument is incorrect." );
+		pCompiler->error( m_Location, "Size of argument is incorrect." );
 	}
 
 	// Push arguments.
-	if( m_Args && pTag->ArgSize() == argSize ){
-		m_Args->ForEach( SetArg( m_pCompiler, pTag ) );
+	if( m_pArgs && pTag->ArgSize() == argSize ){
+		m_pArgs->ForEach( SetArg( pCompiler, pTag ) );
 	}
 
 	// Push number of arguments.
-	m_pCompiler->PushConst( argSize );
+	pCompiler->PushConst( argSize );
 
 	// System call.
 	if( pTag->IsSystem() ){
-		m_pCompiler->OpSysCall( pTag->GetIndex() );
+		pCompiler->OpSysCall( pTag->GetIndex() );
 	}
 	// Normal function call.
 	else{
-		m_pCompiler->OpCall( pTag->GetIndex() );
+		pCompiler->OpCall( pTag->GetIndex() );
 	}
 
 	return pTag->m_Type;
 }
 
-int FunctionNode::Pop( Compiler* pCompiler )
+int FunctionNode::Pop( Compiler* pCompiler ) const
 {
-	m_pCompiler->error( m_Location, "Invalid operation : pop." );
+	pCompiler->error( m_Location, "Invalid operation : pop." );
 	return TYPE_INTEGER;
 }
 
@@ -489,46 +492,46 @@ void Decl::Analyze( Compiler* pCompiler )
 void Assign::Analyze( Compiler* pCompiler )
 {
 	if( m_OP != '=' ){
-		m_pValue->Push( m_pCompiler );
+		m_pValue->Push( pCompiler );
 	}
 
-	if( m_pExpr->Push( m_pCompiler ) == TYPE_INTEGER ){
+	if( m_pExpr->Push( pCompiler ) == TYPE_INTEGER ){
 		switch( m_OP ){
 			case '+':
-				m_pCompiler->OpAdd();
+				pCompiler->OpAdd();
 				break;
 			case '-':
-				m_pCompiler->OpSub();
+				pCompiler->OpSub();
 				break;
 			case '*':
-				m_pCompiler->OpMul();
+				pCompiler->OpMul();
 				break;
 			case '/':
-				m_pCompiler->OpDiv();
+				pCompiler->OpDiv();
 				break;
 			case '%':
-				m_pCompiler->OpMod();
+				pCompiler->OpMod();
 				break;
 		}
-		if( m_pValue->Pop( m_pCompiler ) != TYPE_INTEGER ){
-			m_pCompiler->error( m_Location, "Assign the string to integer." );
+		if( m_pValue->Pop( pCompiler ) != TYPE_INTEGER ){
+			pCompiler->error( m_Location, "Assign the string to integer." );
 		}
 		return;
 	}
 
 	switch( m_OP ){
 		case '+':
-			m_pCompiler->OpStrAdd();
+			pCompiler->OpStrAdd();
 			break;
 		case '=':
 			break;
 		default:
-			m_pCompiler->error( m_pCompiler->m_Location, "Invalid operations." );
+			pCompiler->error( m_Location, "Invalid operations." );
 			break;
 	}
 	
-	if( m_pValue->Pop( m_pCompiler ) != TYPE_STRING ){
-		m_pCompiler->error( m_Location, "Assign integer to string" );
+	if( m_pValue->Pop( pCompiler ) != TYPE_STRING ){
+		pCompiler->error( m_Location, "Assign integer to string" );
 	}
 }
 
@@ -542,7 +545,7 @@ void StateBlock::Analyze( Compiler* pCompiler )
 
 	// Generate statement code.
 	if( m_pStateList ){
-		m_pDeclList->ForEach( std::bind2nd( std::mem_fun( &Statement::Analyze ), pCompiler ) );
+		m_pStateList->ForEach( std::bind2nd( std::mem_fun( &Statement::Analyze ), pCompiler ) );
 	}
 }
 
@@ -558,7 +561,7 @@ void AssignStatement::Analyze( Compiler* pCompiler )
 
 void FunctionStatement::Analyze( Compiler* pCompiler )
 {
-	int type = m_Node.push( pCompiler );		// Return value.
+	int type = m_Node.Push( pCompiler );		// Return value.
 	if( type != TYPE_VOID ){
 		pCompiler->OpPop();						// If return value type is void, return value is discarded.
 	}
@@ -687,9 +690,9 @@ void CaseStatement::Analyze( Compiler* pCompiler )
 // Case statement
 void CaseStatement::AnalyzeCase( CaseActionParam* pParam )
 {
-	Compiler* pCompiler = pParam->m_Compiler;
+	Compiler* pCompiler = pParam->m_pCompiler;
 	m_Label = pCompiler->MakeLabel();
-	if( m_pExpr->OP() != OP_CONST ){
+	if( m_pExpr->GetOP() != OP_CONST ){
 		pCompiler->error( m_Location, "Invalid case parameter." );
 	}
 	m_pExpr->Push( pCompiler );
@@ -705,7 +708,7 @@ void DefaultStatement::Analyze( Compiler* pCompiler )
 // Default statement
 void DefaultStatement::AnalyzeCase( CaseActionParam* pParam )
 {
-	m_Label = pParam->m_Compiler->MakeLabel();
+	m_Label = pParam->m_pCompiler->MakeLabel();
 	pParam->m_DefaultLabel = m_Label;
 }
 
@@ -734,6 +737,7 @@ void ReturnStatement::Analyze( Compiler* pCompiler )
 			int type = m_pExpr->Push( pCompiler );
 			if( type != pCompiler->GetFunctionType() ){
 				pCompiler->error( m_Location, "Function type and return value type is mismatched." );
+			}
 		}
 		pCompiler->OpReturnV();
 	}

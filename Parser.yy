@@ -13,7 +13,7 @@
 %initial-action
 {
 	/* Initialize locations */
-	@$.begin.filename = @$.end.filename = &compiler.get_filename();
+	@$.begin.filename = @$.end.filename = &compiler.GetFileName();
 }
 /* Debug */
 %error-verbose
@@ -134,11 +134,11 @@ sentence:	error ';'
 		| declaration
 		;
 
-declaration:	type vallist ';'				{ compiler.DefineVal( @2, $1, $2 ); }
-		| type "identifier" '(' ')' ';'			{ compiler.DefineFunc( @2, $1, $2, NULL ); }
-		| type "identifier" '(' arglist ')' ';'		{ compiler.DefineFunc( @2, $1, $2, $4 ); }
-		| "void" "identifier" '(' ')' ';'		{ compiler.DefineFunc( @2, TYPE_VOID, $2, NULL ); }
-		| "void" "identifier" '(' arglist ')' ';'	{ compiler.DefineFunc( @2, TYPE_VOID, $2. $4 ); }
+declaration:	type vallist ';'				{ compiler.DefineValue( @2, $1, $2 ); }
+		| type "identifier" '(' ')' ';'			{ compiler.DefineFunction( @2, $1, $2, NULL ); }
+		| type "identifier" '(' arglist ')' ';'		{ compiler.DefineFunction( @2, $1, $2, $4 ); }
+		| "void" "identifier" '(' ')' ';'		{ compiler.DefineFunction( @2, TYPE_VOID, $2, NULL ); }
+		| "void" "identifier" '(' arglist ')' ';'	{ compiler.DefineFunction( @2, TYPE_VOID, $2, $4 ); }
 		;
 
 vallist:	value						{ $$ = new ValueList( $1 ); }
@@ -150,11 +150,11 @@ arglist:	argdef						{ $$ = new ArgList( $1 ); }
 		;
 
 argdef:		type						{ $$ = new ArgDef( @1, $1, NULL ); }
-		| type '&'					{ $$ = new ArgDef( @1, ToRef( $1 ), NULL ); }
+		| type '&'					{ $$ = new ArgDef( @1, TypeToRef( $1 ), NULL ); }
 		| type "identifier"				{ $$ = new ArgDef( @1, $1, $2 ); }
-		| type '&' "identifier"				{ $$ = new ArgDef( @1, ToRef( $1 ), $3 ); }
-		| type "identifier" '[' ']'			{ $$ = new ArgDef( @1, ToRef( $1 ), $2 ); }
-		| type '&' "identifier" '[' ']'			{ $$ = new ArgDef( @1, ToRef( $1 ), $3 ); }
+		| type '&' "identifier"				{ $$ = new ArgDef( @1, TypeToRef( $1 ), $3 ); }
+		| type "identifier" '[' ']'			{ $$ = new ArgDef( @1, TypeToRef( $1 ), $2 ); }
+		| type '&' "identifier" '[' ']'			{ $$ = new ArgDef( @1, TypeToRef( $1 ), $3 ); }
 		;
 
 function:	type "identifier" '(' ')' block			{ compiler.AddFunction( @1, $1, $2, NULL, $5 ); }
@@ -170,12 +170,12 @@ type:		"int"						{ $$ = TYPE_INTEGER; }
 block:		'{' decllist statelist '}'			{ $$ = new StateBlock( $2, $3 ); }
 		;
 
-decllist:							{ $$ = NULL }
-		| decls						{ $$ = $1 }
+decllist:							{ $$ = NULL; }
+		| decls						{ $$ = $1; }
 		;
 
-statelist:							{ $$ = NULL }
-		| states					{ $$ = $1 }
+statelist:							{ $$ = NULL; }
+		| states					{ $$ = $1; }
 		;
 
 decls:		type vallist ';'				{ $$ = new DeclList( new Decl( $1, $2 ) ); }
@@ -237,7 +237,7 @@ expr:		expr "&&" expr				{ $$ = Node::MakeNode( compiler, @2, OP_LOGAND, $1, $3 
 		| "identifier" '(' ')'			{ $$ = new FunctionNode( @1, $1, NULL ); }
 		;
 
-value:		"identifier"				{ $$ = new ValueNode( @1, $1, NULL ); }
+value:		"identifier"				{ $$ = new ValueNode( @1, $1 ); }
 		| "identifier" '[' expr ']'		{ $$ = new ValueNode( @1, $1, $3 ); }
 		;
 

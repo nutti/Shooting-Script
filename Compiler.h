@@ -1,6 +1,9 @@
 #ifndef INCLUDED_COMPILER_H
 #define INCLUDED_COMPILER_H
 
+
+#define _DEBUG
+
 #include "Parser.hh"
 #include "VM.h"
 #include "Node.h"
@@ -13,7 +16,7 @@ class Compiler;
 			yy::Parser::location_type* yylloc,	\
 			Compiler& compiler )
 
-YY_DECL
+YY_DECL;
 
 class VMCode
 {
@@ -87,7 +90,7 @@ private:
 	bool								m_Global;		// Is global?
 
 	typedef std::map < std::string, ValueTag > ::iterator iter;
-	typedef std::map < std::string, ValueTag > ::iterator iterConst;
+	typedef std::map < std::string, ValueTag > ::const_iterator iterConst;
 public:
 	ValueTable( int startAddr = 0 ) : m_Addr( startAddr ), m_Global( false )
 	{
@@ -98,17 +101,19 @@ public:
 	}
 	bool Add( int type, const std::string& name, int size = 1 )
 	{
-		std::pair < iter, bool > result = m_Variables.insert( make_pair( name, ValueTag( m_Addr, type, m_Global ) ) );
+		std::pair < iter, bool > result = m_Variables.insert( make_pair( name, ValueTag( m_Addr, type, size, m_Global ) ) );
 		if( result.second ){
 			m_Addr += size;
+			std::cout << "test:" << m_Addr << std::endl;
 			return true;
 		}
 		return false;
 	}
 	const ValueTag* Find( const std::string& name ) const
 	{
-		iterConst it = m_Variables.Find( name );
+		iterConst it = m_Variables.find( name );
 		if( it != m_Variables.end() ){
+			std::cout << "t:" << name << std::endl;
 			return &it->second;
 		}
 		return NULL;
@@ -171,24 +176,24 @@ public:
 	void SetArgs( const ArgList* pArgs )
 	{
 		if( pArgs ){
-			size_t size = pArgs->size();
+			size_t size = pArgs->Size();
 			for( size_t i = 0; i < size; ++i ){
-				m_Args.push_back( ( char ) pArgs->get( i )->GetType() );
+				m_Args.push_back( ( char ) pArgs->Get( i )->GetType() );
 			}
 		}
 	}
-	void SetArgs( const char* pArgs )
+	bool SetArgs( const char* pArgs )
 	{
 		if( pArgs ){
 			for( int i = 0; pArgs[ i ] != 0; ++i ){
 				switch( pArgs[ i ] ){
 					case 'I':
 					case 'i':
-						pArgs[ i ].push_back( TYPE_INTEGER );
+						m_Args.push_back( TYPE_INTEGER );
 						break;
 					case 'S':
 					case 's':
-						pArgs[ i ].push_back( TYPE_STRING );
+						m_Args.push_back( TYPE_STRING );
 						break;
 					default:
 						return false;
@@ -205,27 +210,27 @@ public:
 		}
 
 		// Size of argments is mismatched.
-		if( m_Args.size() != pArgs->size() ){
+		if( m_Args.size() != pArgs->Size() ){
 			return false;
 		}
 
 		// All argument types are checked.
 		size_t size = m_Args.size();
 		for( size_t i = 0; i < size; ++i ){
-			if( pArgs->get( i )->GetType() != ( int ) m_Args[ i ] ){
+			if( pArgs->Get( i )->GetType() != ( int ) m_Args[ i ] ){
 				return false;
 			}
 		}
 
 		return true;
 	}
-	int GetArg( int index )
+	int GetArg( int index ) const
 	{
 		return m_Args[ index ];
 	}
 	int ArgSize() const
 	{
-		return m_Args.size;
+		return m_Args.size();
 	}
 	void SetIndex( int index )
 	{
@@ -282,7 +287,7 @@ public:
 	}
 	const FunctionTag* Find( const std::string& name ) const
 	{
-		const_iter it = m_Functions.find( name );
+		iterConst it = m_Functions.find( name );
 		if( it != m_Functions.end() ){
 			return &it->second;
 		}
@@ -307,7 +312,7 @@ class Compiler
 private:
 	FunctionTable					m_Functions;
 	std::vector < ValueTable >		m_Variables;
-	std::vector < CVMCode >			m_Statement;
+	std::vector < VMCode >			m_Statement;
 	std::vector < Label >			m_Labels;
 	std::vector < char >			m_TextTable;
 	int								m_BreakIndex;
@@ -330,7 +335,7 @@ public:
 	void DebugDump();
 #endif
 	bool AddFunction( int index, int type, const char* pName, const char* pArgs );
-	void DefineValue( const yy::location& location, int type, Valuelist* pValueList );
+	void DefineValue( const yy::location& location, int type, ValueList* pValueList );
 	void DefineFunction( const yy::location& location, int type, const std::string* pName,ArgList* pArgs );
 	void AddFunction( const yy::location& location, int type, const std::string* pName, ArgList* pArgs, StateBlock* pState );
 	// Search variables from internal blocks.
@@ -338,7 +343,7 @@ public:
 	{
 		int size = ( int ) m_Variables.size();
 		for( int i = size - 1; i >= 0; --i ){
-			const ValueTag* pTag = m_Variables[ i ].find( name );
+			const ValueTag* pTag = m_Variables[ i ].Find( name );
 			if( pTag ){
 				return pTag;
 			}
@@ -347,12 +352,12 @@ public:
 	}
 	const FunctionTag* GetFunctionTag( const std::string& name ) const
 	{
-		return m_Functions.find( name );
+		return m_Functions.Find( name );
 	}
 
 #define VM_CREATE
 #include "VMCode.h"
-#undef
+#undef VM_CREATE
 
 	void BlockIn();
 	void BlockOut();
@@ -374,6 +379,8 @@ public:
 	bool CreateData( VM::Data& data, int codeSize );
 	void error( const yy::location& location, const std::string& m );
 	void error( const std::string& m );
+	int MakeLabel();
+	bool JmpBreakLabel();
 
 };
 
