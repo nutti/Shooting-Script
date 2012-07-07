@@ -104,7 +104,7 @@ public:
 		std::pair < iter, bool > result = m_Variables.insert( make_pair( name, ValueTag( m_Addr, type, size, m_Global ) ) );
 		if( result.second ){
 			m_Addr += size;
-			std::cout << "test:" << m_Addr << std::endl;
+			//std::cout << "test:" << m_Addr << std::endl;
 			return true;
 		}
 		return false;
@@ -113,7 +113,7 @@ public:
 	{
 		iterConst it = m_Variables.find( name );
 		if( it != m_Variables.end() ){
-			std::cout << "t:" << name << std::endl;
+			//std::cout << "t:" << name << std::endl;
 			return &it->second;
 		}
 		return NULL;

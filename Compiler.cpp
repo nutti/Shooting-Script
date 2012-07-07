@@ -19,6 +19,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	// System call
 	AddFunction( VM::SYS_PRINT, TYPE_VOID, "print", "s" );
 	AddFunction( VM::SYS_TOSTR, TYPE_STRING, "str", "i" );
+	AddFunction( VM::SYS_DUMP, TYPE_VOID, "dump", "" );
 
 	// Global variables.
 	m_Variables.push_back( ValueTable() );

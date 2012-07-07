@@ -89,7 +89,7 @@ Node* Node::MakeNode( Compiler& compiler, const yy::location& location, int op, 
 				return new Node( location, op, pLeft, pRight );
 		}
 		delete pRight;
-		delete pLeft;
+		return pLeft;
 	}
 
 	// String - String
@@ -271,7 +271,7 @@ int ValueNode::Push( Compiler* pCompiler ) const
 	}
 	else{
 		const ValueTag* pTag = pCompiler->GetValueTag( *m_pString );
-		std::cout << *m_pString << std::endl;
+		//std::cout << *m_pString << std::endl;
 		if( pTag == 0 ){
 			pCompiler->error( m_Location, "Variable : " + *m_pString + " is not decleared." );
 		}

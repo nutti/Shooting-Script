@@ -24,6 +24,7 @@ namespace VM
 	{
 		SYS_PRINT,
 		SYS_TOSTR,
+		SYS_DUMP,
 	};
 
 	class Data
@@ -467,6 +468,9 @@ namespace VM
 				case SYS_TOSTR:
 					SysToStr();
 					break;
+				case SYS_DUMP:
+					SysDump();
+					break;
 			}
 		}
 		void SysPrint()
@@ -481,6 +485,10 @@ namespace VM
 			char str[ 16 ];
 			sprintf( str, "%d", v );
 			Push( std::string( str ) );
+		}
+		void SysDump()
+		{
+			std::cout << "test" << std::endl;
 		}
 	private:
 		int Value()
