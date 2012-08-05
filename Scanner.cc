@@ -1039,7 +1039,7 @@ YY_RULE_SETUP
 #line 98 "Scanner.ll"
 {
 						errno = 0;
-						long n = strtof( yytext, NULL );
+						float n = (float)strtod( yytext, NULL );
 						yylval->m_FloatVal = n;
 						return token::TOKEN_FVAL;
 					}

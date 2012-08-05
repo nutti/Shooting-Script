@@ -97,7 +97,7 @@ blank		[ \t]
 
 	{floating}		{
 						errno = 0;
-						long n = strtof( yytext, NULL );
+						float n = (float)strtod( yytext, NULL );
 						yylval->m_FloatVal = n;
 						return token::TOKEN_FVAL;
 					}

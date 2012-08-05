@@ -1070,7 +1070,7 @@ namespace yy {
 
 /* Line 678 of lalr1.cc  */
 #line 239 "Parser.yy"
-    { (yyval.m_pExpr) = new Node( (yylocation_stack_[(1) - (1)]), OP_CONST, (yysemantic_stack_[(1) - (1)].m_IntVal) ); }
+    { (yyval.m_pExpr) = new Node( (yylocation_stack_[(1) - (1)]), OP_INT_CONST, (yysemantic_stack_[(1) - (1)].m_IntVal) ); }
     break;
 
   case 80:
@@ -1084,7 +1084,7 @@ namespace yy {
 
 /* Line 678 of lalr1.cc  */
 #line 241 "Parser.yy"
-    { (yyval.m_pExpr) = new Node( (yylocation_stack_[(1) - (1)]), OP_CONST, (yysemantic_stack_[(1) - (1)].m_FloatVal) ); }
+    { (yyval.m_pExpr) = new Node( (yylocation_stack_[(1) - (1)]), OP_FLOAT_CONST, (yysemantic_stack_[(1) - (1)].m_FloatVal) ); }
     break;
 
   case 82:

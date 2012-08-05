@@ -236,9 +236,9 @@ expr:		expr "&&" expr				{ $$ = Node::MakeNode( compiler, @2, OP_LOGAND, $1, $3 
 		| '-' expr %prec NEG			{ $$ = Node::MakeNode( compiler, @2, OP_NEG, $2 ); }
 		| '(' expr ')'				{ $$ = $2; }
 		| value					{ $$ = $1; }
-		| "ival"				{ $$ = new Node( @1, OP_CONST, $1 ); }
+		| "ival"				{ $$ = new Node( @1, OP_INT_CONST, $1 ); }
 		| "sval"				{ $$ = new Node( @1, OP_STRING, $1 ); }
-		| "fval"				{ $$ = new Node( @1, OP_CONST, $1 ); }
+		| "fval"				{ $$ = new Node( @1, OP_FLOAT_CONST, $1 ); }
 		| "identifier" '(' args ')'		{ $$ = new FunctionNode( @1, $1, $3 ); }
 		| "identifier" '(' ')'			{ $$ = new FunctionNode( @1, $1, NULL ); }
 		;
