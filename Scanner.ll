@@ -21,6 +21,7 @@
 
 identifier	[a-zA-Z_][a-zA-Z_0-9]*
 integer		[1-9][0-9]*
+floating	[0-9]*[.][0-9]f
 blank		[ \t]
 
 %x COMMENT_C
@@ -52,6 +53,7 @@ blank		[ \t]
 	"break"				return token::TOKEN_BREAK;
 	"return"			return token::TOKEN_RETURN;
 
+	"float"				return token::TOKEN_FLOAT;
 	"string"			return token::TOKEN_STRING;
 	"int"				return token::TOKEN_INTEGER;
 	"void"				return token::TOKEN_VOID;
@@ -91,7 +93,15 @@ blank		[ \t]
 						yylval->m_IntVal = n;
 						return token::TOKEN_IVAL;
 					}
+	
 
+	{floating}		{
+						errno = 0;
+						long n = strtof( yytext, NULL );
+						yylval->m_FloatVal = n;
+						return token::TOKEN_FVAL;
+					}
+	
 	"0"				{
 						yylval->m_IntVal = 0;
 						return token::TOKEN_IVAL;

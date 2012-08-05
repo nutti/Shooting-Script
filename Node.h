@@ -80,11 +80,12 @@ typedef NodeList < Statement >		StateList;
 // Type information
 enum
 {
-	TYPE_INTEGER,		// Integer
-	TYPE_STRING,		// String
-	TYPE_INTEGER_REF,	// Reference to integer
-	TYPE_STRING_REF,	// Reference to string
-	TYPE_VOID,		// Void
+	TYPE_INTEGER = 0,		// Integer
+	TYPE_STRING = 1,		// String
+	TYPE_INTEGER_REF = 2,	// Reference to integer
+	TYPE_STRING_REF = 3,	// Reference to string
+	TYPE_FLOAT = 4,			// Float.
+	TYPE_VOID = 5,		// Void
 };
 
 // Change to reference.

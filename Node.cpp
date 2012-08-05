@@ -146,12 +146,16 @@ Node* Node::MakeNode( Compiler& compiler, const yy::location& location, int op, 
 int Node::Push( Compiler* pCompiler ) const
 {
 	switch( m_OP ){
-		case OP_NEG:
-			if( m_pLeft->Push( pCompiler ) == TYPE_STRING ){
-				pCompiler->error( m_Location, "'-' can not be used to string." );
+		case OP_NEG:{
+				if( m_pLeft->Push( pCompiler ) == TYPE_STRING ){
+					pCompiler->error( m_Location, "'-' can not be used to string." );
+				}
+				int ret = pCompiler->OpNeg();
+				if( ret == VM::VM_VALUE_TYPE_INTEGER ){
+					return TYPE_INTEGER;
+				}
+				return TYPE_FLOAT;
 			}
-			pCompiler->OpNeg();
-			return TYPE_INTEGER;
 		case OP_CONST:
 			pCompiler->PushConst( m_Value );
 			return TYPE_INTEGER;
@@ -168,7 +172,7 @@ int Node::Push( Compiler* pCompiler ) const
 	}
 
 	// Integer operations.
-	if( leftType == TYPE_INTEGER ){
+	if( leftType == TYPE_INTEGER || leftType == TYPE_FLOAT ){
 		switch( m_OP ){
 			case OP_LOGAND:
 				pCompiler->OpLogAnd();
@@ -225,7 +229,7 @@ int Node::Push( Compiler* pCompiler ) const
 				pCompiler->error( m_Location, "Invalid operation." );
 				break;
 		}
-		return TYPE_INTEGER;
+		return leftType;
 	}
 
 	// String operations.
@@ -495,7 +499,7 @@ void Assign::Analyze( Compiler* pCompiler )
 		m_pValue->Push( pCompiler );
 	}
 
-	if( m_pExpr->Push( pCompiler ) == TYPE_INTEGER ){
+	if( m_pExpr->Push( pCompiler ) != TYPE_STRING ){
 		switch( m_OP ){
 			case '+':
 				pCompiler->OpAdd();
@@ -513,7 +517,7 @@ void Assign::Analyze( Compiler* pCompiler )
 				pCompiler->OpMod();
 				break;
 		}
-		if( m_pValue->Pop( pCompiler ) != TYPE_INTEGER ){
+		if( m_pValue->Pop( pCompiler ) == TYPE_STRING ){
 			pCompiler->error( m_Location, "Assign the string to integer." );
 		}
 		return;
@@ -663,10 +667,14 @@ void SwitchStatement::Analyze( Compiler* pCompiler )
 {
 	m_pExpr->Push( pCompiler );
 
+	printf( "\n\nkiojds" );
+
 	if( m_pStateList ){
 		int label = pCompiler->MakeLabel();
 		int breakLabel = pCompiler->SetBreakLabel( label );
 		int defaultLabel = label;
+
+		printf( "\n\niojofei" );
 
 		CaseActionParam param( pCompiler, defaultLabel );
 

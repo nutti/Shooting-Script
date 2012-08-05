@@ -1,35 +1,17 @@
-int add( int v1, int v2 );
 
 int main()
 {
 	int val;
-	int test;
+	float a;
 
-	string a;
+	a = 1.3f;
+	a = -0.9f;
 
-	a = "s";
+	a = -a;
 
-//	print( a );
-
-	a = "s" + a + "tt";
-	
-	print( a );
-
-	val = 20;
-	test = 40;
-
-	val = add( 25, 35 ) + 50;
-
-	//val += 20;
-
-//	val = test;
-
-//	print( str(val) );
+	val = 16;
+	val = -val;
 
 	return val;
 }
 
-int add( int v1, int v2 )
-{
-	return v1 - v2;
-}

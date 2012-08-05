@@ -184,25 +184,47 @@ namespace VM
 		{
 			Pop();
 		}
-		void OpNeg()
+		int OpNeg()
 		{
-			Top().m_Integer = -Top().m_Integer;
+			if( Top().m_Type == VM_VALUE_TYPE_INTEGER ){
+				Top().m_Integer = -Top().m_Integer;
+				return VM_VALUE_TYPE_INTEGER;
+			}
+			else if( Top().m_Type == VM_VALUE_TYPE_FLOAT ){
+				Top().m_Float = -Top().m_Float;
+				return VM_VALUE_TYPE_FLOAT;
+			}
 		}
 		void OpEq()
 		{
-			int rhs = Top().m_Integer;
-			Pop();
-			int lhs = Top().m_Integer;
-			Pop();
-			Push( lhs == rhs );
+			if( Top().m_Type == VM_VALUE_TYPE_INTEGER ){
+				int rhs = Top().m_Integer;
+				Pop();
+				int lhs = Top().m_Integer;
+				Pop();
+				printf( "piyo" );
+				Push( lhs == rhs );
+			}
+			else{
+				float rhs = Top().m_Float;
+				Pop();
+				float lhs = Top().m_Float;
+				Pop();
+				printf( "hoge" );
+				Push( lhs == rhs );
+			}	
 		}
 		void OpNe()
 		{
-			int rhs = Top().m_Integer;
-			Pop();
-			int lhs = Top().m_Integer;
-			Pop();
-			Push( lhs != rhs );
+			if( Top().m_Type != VM_VALUE_TYPE_INTEGER ){
+				int rhs = Top().m_Integer;
+				Pop();
+				int lhs = Top().m_Integer;
+				Pop();
+				Push( lhs != rhs );
+			}
+			else{
+			}				
 		}
 		void OpGt()
 		{
@@ -416,6 +438,7 @@ namespace VM
 		void OpTest( int val )
 		{
 			int value = Top().m_Integer;
+			Pop();
 			if( value == Top().m_Integer ){
 				Pop();
 				jmp( val );

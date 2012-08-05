@@ -1,21 +1,25 @@
 #ifdef VM_ENUMDEF
 #define VMCODE0( code, name )	code,
 #define VMCODE1( code, name )	code,
+#define VMCODE2( code, name )	code,
 #endif
 
 #ifdef VM_CREATE
 #define VMCODE0( code, name )	void name()				{ m_Statement.push_back( VMCode( code ) ); }
 #define VMCODE1( code, name )	void name( int arg1 )	{ m_Statement.push_back( VMCode( code, arg1 ) ); }
+#define VMCODE2( code, name )	int name()				{ m_Statement.push_back( VMCode( code ) ); }
 #endif
 
 #ifdef VM_SWITCHTABLE
 #define VMCODE0( code, name )	case code: name(); break;
 #define VMCODE1( code, name )	case code: name( Value() ); break;
+#define VMCODE2( code, name )	case code: name(); break;
 #endif
 
 #ifdef VM_NAMETABLE
 #define VMCODE0( code, name )	#name,
 #define VMCODE1( code, name )	#name,
+#define VMCODE2( code, name )	#name,
 #endif
 
 VMCODE1( VM_PUSHCONST,				PushConst )
@@ -36,7 +40,7 @@ VMCODE1( VM_POPLOCALREF,			PopLocalRef )
 VMCODE1( VM_POPLOCALARRAYREF,		PopLocalArrayRef )
 VMCODE1( VM_ALLOCSTACK,				OpAllocStack )
 VMCODE0( VM_POP,					OpPop )
-VMCODE0( VM_NEG,					OpNeg )
+VMCODE2( VM_NEG,					OpNeg )
 VMCODE0( VM_EQ,						OpEq )
 VMCODE0( VM_NE,						OpNe )
 VMCODE0( VM_GT,						OpGt )
@@ -73,3 +77,4 @@ VMCODE0( VM_HALT,					OpHalt )
 
 #undef VMCODE0
 #undef VMCODE1
+#undef VMCODE2

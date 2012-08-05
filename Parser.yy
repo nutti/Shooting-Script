@@ -22,6 +22,7 @@
 {
 	int		m_IntVal;
 	std::string*	m_pStrVal;
+	float	m_FloatVal;
 	int		m_Type;
 	ValueList*	m_pValueList;
 	ArgList*	m_pArgList;
@@ -49,6 +50,8 @@
 %token <m_pStrVal>	TOKEN_IDENTIFIER		"identifier"
 /* String value */
 %token <m_pStrVal>	TOKEN_SVAL			"sval"
+/* Float value */
+%token <m_FloatVal> TOKEN_FVAL			"fval"
 /* Operations */
 %token			TOKEN_LOGOR			"||"
 %token			TOKEN_LOGAND			"&&"
@@ -75,6 +78,7 @@
 %token			TOKEN_RETURN			"return"
 %token			TOKEN_INTEGER			"int"
 %token			TOKEN_STRING			"string"
+%token			TOKEN_FLOAT				"float"
 %token			TOKEN_VOID			"void"
 
 /* Nonterminal symbols */
@@ -165,6 +169,7 @@ function:	type "identifier" '(' ')' block			{ compiler.AddFunction( @1, $1, $2, 
 
 type:		"int"						{ $$ = TYPE_INTEGER; }
 		| "string"					{ $$ = TYPE_STRING; }
+		| "float"					{ $$ = TYPE_FLOAT; }
 		;
 
 block:		'{' decllist statelist '}'			{ $$ = new StateBlock( $2, $3 ); }
@@ -190,8 +195,8 @@ statement:	';'							{ $$ = new NopStatement( @1 ); }
 		| assign ';'						{ $$ = new AssignStatement( @1, $1 ); }
 		| "identifier" '(' args ')' ';'				{ $$ = new FunctionStatement( @1, $1, $3 ); }
 		| "identifier" '(' ')' ';'				{ $$ = new FunctionStatement( @1, $1, NULL ); }
-		| "case" expr ';'					{ $$ = new CaseStatement( @1, $2 ); }
-		| "default" ';'						{ $$ = new DefaultStatement( @1 ); }
+		| "case" expr ':'					{ $$ = new CaseStatement( @1, $2 ); }
+		| "default" ':'						{ $$ = new DefaultStatement( @1 ); }
 		| "break" ';'						{ $$ = new BreakStatement( @1 ); }
 		| "return" ';'						{ $$ = new ReturnStatement( @1, NULL ); }
 		| "return" expr ';'					{ $$ = new ReturnStatement( @1, $2 ); }
@@ -233,6 +238,7 @@ expr:		expr "&&" expr				{ $$ = Node::MakeNode( compiler, @2, OP_LOGAND, $1, $3 
 		| value					{ $$ = $1; }
 		| "ival"				{ $$ = new Node( @1, OP_CONST, $1 ); }
 		| "sval"				{ $$ = new Node( @1, OP_STRING, $1 ); }
+		| "fval"				{ $$ = new Node( @1, OP_CONST, $1 ); }
 		| "identifier" '(' args ')'		{ $$ = new FunctionNode( @1, $1, $3 ); }
 		| "identifier" '(' ')'			{ $$ = new FunctionNode( @1, $1, NULL ); }
 		;
