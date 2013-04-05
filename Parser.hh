@@ -42,7 +42,9 @@
 #include <string>
 #include <iostream>
 #include "stack.hh"
+#include "Parser.hh"
 #include "Node.h"
+#include "../Math.hpp"
 
 /* Line 35 of lalr1.cc  */
 #line 1 "[Bison:b4_percent_define_default]"
@@ -120,12 +122,13 @@ namespace yy {
     {
 
 /* Line 35 of lalr1.cc  */
-#line 22 "Parser.yy"
+#line 23 "Parser.yy"
 
 	int		m_IntVal;
 	std::string*	m_pStrVal;
 	float	m_FloatVal;
 	int		m_Type;
+	GameEngine::ScriptGU  m_GUVal;
 	ValueList*	m_pValueList;
 	ArgList*	m_pArgList;
 	DeclList*	m_pDeclList;
@@ -141,7 +144,7 @@ namespace yy {
 
 
 /* Line 35 of lalr1.cc  */
-#line 145 "Parser.hh"
+#line 146 "Parser.hh"
     };
 #else
     typedef YYSTYPE semantic_type;
@@ -158,33 +161,35 @@ namespace yy {
      TOKEN_IDENTIFIER = 259,
      TOKEN_SVAL = 260,
      TOKEN_FVAL = 261,
-     TOKEN_LOGOR = 262,
-     TOKEN_LOGAND = 263,
-     TOKEN_EQ = 264,
-     TOKEN_NE = 265,
-     TOKEN_GE = 266,
-     TOKEN_LE = 267,
-     TOKEN_LSHIFT = 268,
-     TOKEN_RSHIFT = 269,
-     TOKEN_ADDASSIGN = 270,
-     TOKEN_SUBASSIGN = 271,
-     TOKEN_MULASSIGN = 272,
-     TOKEN_DIVASSIGN = 273,
-     TOKEN_MODASSIGN = 274,
-     TOKEN_IF = 275,
-     TOKEN_ELSE = 276,
-     TOKEN_WHILE = 277,
-     TOKEN_FOR = 278,
-     TOKEN_SWITCH = 279,
-     TOKEN_CASE = 280,
-     TOKEN_DEFAULT = 281,
-     TOKEN_BREAK = 282,
-     TOKEN_RETURN = 283,
-     TOKEN_INTEGER = 284,
-     TOKEN_STRING = 285,
-     TOKEN_FLOAT = 286,
-     TOKEN_VOID = 287,
-     NEG = 288
+     TOKEN_GVAL = 262,
+     TOKEN_LOGOR = 263,
+     TOKEN_LOGAND = 264,
+     TOKEN_EQ = 265,
+     TOKEN_NE = 266,
+     TOKEN_GE = 267,
+     TOKEN_LE = 268,
+     TOKEN_LSHIFT = 269,
+     TOKEN_RSHIFT = 270,
+     TOKEN_ADDASSIGN = 271,
+     TOKEN_SUBASSIGN = 272,
+     TOKEN_MULASSIGN = 273,
+     TOKEN_DIVASSIGN = 274,
+     TOKEN_MODASSIGN = 275,
+     TOKEN_IF = 276,
+     TOKEN_ELSE = 277,
+     TOKEN_WHILE = 278,
+     TOKEN_FOR = 279,
+     TOKEN_SWITCH = 280,
+     TOKEN_CASE = 281,
+     TOKEN_DEFAULT = 282,
+     TOKEN_BREAK = 283,
+     TOKEN_RETURN = 284,
+     TOKEN_INTEGER = 285,
+     TOKEN_STRING = 286,
+     TOKEN_FLOAT = 287,
+     TOKEN_VOID = 288,
+     TOKEN_GU = 289,
+     NEG = 290
    };
 
     };
@@ -309,7 +314,7 @@ namespace yy {
     /// For each rule, the index of the first RHS symbol in \a yyrhs_.
     static const unsigned short int yyprhs_[];
     /// For each rule, its source line number.
-    static const unsigned char yyrline_[];
+    static const unsigned short int yyrline_[];
     /// For each scanner token number, its symbol number.
     static const unsigned short int yytoken_number_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
@@ -361,7 +366,7 @@ namespace yy {
 } // yy
 
 /* Line 35 of lalr1.cc  */
-#line 365 "Parser.hh"
+#line 368 "Parser.hh"
 
 
 

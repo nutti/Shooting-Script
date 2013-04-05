@@ -4,6 +4,7 @@
 %{
 	#include <string>
 	#include "Node.h"
+	#include "../Math.hpp"
 	class Compiler;
 %}
 %parse-param{ Compiler& compiler }
@@ -24,6 +25,7 @@
 	std::string*	m_pStrVal;
 	float	m_FloatVal;
 	int		m_Type;
+	GameEngine::ScriptGU  m_GUVal;
 	ValueList*	m_pValueList;
 	ArgList*	m_pArgList;
 	DeclList*	m_pDeclList;
@@ -52,6 +54,8 @@
 %token <m_pStrVal>	TOKEN_SVAL			"sval"
 /* Float value */
 %token <m_FloatVal> TOKEN_FVAL			"fval"
+/* Game Unit value */
+%token <m_GUVal > TOKEN_GVAL		"gval"
 /* Operations */
 %token			TOKEN_LOGOR			"||"
 %token			TOKEN_LOGAND			"&&"
@@ -80,6 +84,7 @@
 %token			TOKEN_STRING			"string"
 %token			TOKEN_FLOAT				"float"
 %token			TOKEN_VOID			"void"
+%token			TOKEN_GU			"gu"
 
 /* Nonterminal symbols */
 
@@ -170,6 +175,7 @@ function:	type "identifier" '(' ')' block			{ compiler.AddFunction( @1, $1, $2, 
 type:		"int"						{ $$ = TYPE_INTEGER; }
 		| "string"					{ $$ = TYPE_STRING; }
 		| "float"					{ $$ = TYPE_FLOAT; }
+		| "gu"						{ $$ = TYPE_GU; }
 		;
 
 block:		'{' decllist statelist '}'			{ $$ = new StateBlock( $2, $3 ); }
@@ -239,6 +245,7 @@ expr:		expr "&&" expr				{ $$ = Node::MakeNode( compiler, @2, OP_LOGAND, $1, $3 
 		| "ival"				{ $$ = new Node( @1, OP_INT_CONST, $1 ); }
 		| "sval"				{ $$ = new Node( @1, OP_STRING, $1 ); }
 		| "fval"				{ $$ = new Node( @1, OP_FLOAT_CONST, $1 ); }
+		| "gval"				{ $$ = new Node( @1, OP_GU_CONST, $1 ); }
 		| "identifier" '(' args ')'		{ $$ = new FunctionNode( @1, $1, $3 ); }
 		| "identifier" '(' ')'			{ $$ = new FunctionNode( @1, $1, NULL ); }
 		;

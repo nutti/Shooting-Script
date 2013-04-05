@@ -5,7 +5,7 @@
 	#include <string>
 	#include "Compiler.h"
 	#include "Parser.hh"
-
+	#include "../Math.hpp"
 	#undef yywrap
 	#define yywrap() 1
 	#define yyterminate() return token::TOKEN_EOF
@@ -21,8 +21,10 @@
 
 identifier	[a-zA-Z_][a-zA-Z_0-9]*
 integer		[1-9][0-9]*
-floating	[0-9]*[.][0-9]f
+floating	[0-9]*[.][0-9]+f
+gameunit	[0-9]*[_][0-9]+g
 blank		[ \t]
+
 
 %x COMMENT_C
 %x COMMENT_CPP
@@ -57,6 +59,7 @@ blank		[ \t]
 	"string"			return token::TOKEN_STRING;
 	"int"				return token::TOKEN_INTEGER;
 	"void"				return token::TOKEN_VOID;
+	"gu"				return token::TOKEN_GU;
 
 	\\\n				yylloc->lines();
 
@@ -101,7 +104,39 @@ blank		[ \t]
 						yylval->m_FloatVal = n;
 						return token::TOKEN_FVAL;
 					}
-	
+	{gameunit}		{
+						errno = 0;
+						char* end = yytext;
+						int integer;
+						int decimal;
+						char str[ 25 ];
+						int len = 0;
+						
+						
+						while( *end != '_' ){
+							str[ len++ ] = *end++;
+						}
+						++end;
+						str[ len ] = '\0';
+						integer = strtol( str, NULL, 10 );
+						len = 0;
+						
+						while( *end != 'g' ){
+							str[ len++ ] = *end++;
+						}
+						str[ len ] = '\0';
+						decimal = strtol( str, NULL, 10 );
+						if( integer > 0 ){
+							yylval->m_GUVal = ( integer << GameEngine::GameUnit::SHIFT ) + decimal;
+						}
+						else{
+							yylval->m_GUVal = - ( (-integer) << GameEngine::GameUnit::SHIFT ) + decimal;
+						}
+						
+						return token::TOKEN_GVAL;
+					}
+						
+
 	"0"				{
 						yylval->m_IntVal = 0;
 						return token::TOKEN_IVAL;

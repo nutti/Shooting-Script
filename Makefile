@@ -3,7 +3,7 @@ HEADERS = Compiler.h Node.h VM.h VMCode.h VMValue.h
 OBJ = main.o Compiler.o Node.o VM.o Parser.o Scanner.o
 BISON_OUTPUT = Parser.cc Parser.hh location.hh position.hh
 
-CFLAGS = -O2
+CFLAGS = -O2 
 
 all: script
 
