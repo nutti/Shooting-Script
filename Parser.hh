@@ -42,6 +42,7 @@
 #include <string>
 #include <iostream>
 #include "stack.hh"
+#include "Parser.hh"
 #include "../Math.hpp"
 #include "Node.h"
 
@@ -127,7 +128,7 @@ namespace yy {
 	std::string*	m_pStrVal;
 	float	m_FloatVal;
 	int		m_Type;
-	GameEngine::ScriptGU  m_GUVal;
+	GameEngine::GameUnit*  m_pGUVal;
 	ValueList*	m_pValueList;
 	ArgList*	m_pArgList;
 	DeclList*	m_pDeclList;

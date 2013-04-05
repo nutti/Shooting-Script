@@ -133,45 +133,40 @@ protected:
 	const yy::location	m_Location;
 	int			m_OP;
 	int			m_Value;
-	GameEngine::ScriptGU	m_GUValue;
 	std::string*		m_pString;
+	GameEngine::GameUnit*	m_pGUValue;
 	Node*			m_pLeft;
 	Node*			m_pRight;
 public:
 	Node( const yy::location& location, int op, Node* pLeft, Node* pRight = 0 ) :	m_Location( location ),
 																					m_OP( op ), m_Value( 0 ),
 																					m_pString( 0 ), m_pLeft( pLeft ),
-																					m_pRight( pRight )
+																					m_pRight( pRight ), m_pGUValue( 0 )
 	{
-		m_GUValue.m_Value = 0;
 	}
 	Node( const yy::location& location, int op, int value ) :	m_Location( location ),
 																m_OP( op ), m_Value( value ),
 																m_pString( 0 ),
-																m_pLeft( 0 ), m_pRight( 0 )
+																m_pLeft( 0 ), m_pRight( 0 ), m_pGUValue( 0 )
 	{
-		m_GUValue.m_Value = 0;
 	}
 	Node( const yy::location& location, int op, std::string* pStr ) :	m_Location( location ),
 																		m_OP( op ),
 																		m_Value( 0 ), m_pString( pStr ),
-																		m_pLeft( 0 ), m_pRight( 0 )
+																		m_pLeft( 0 ), m_pRight( 0 ), m_pGUValue( 0 )
 	{
-		m_GUValue.m_Value = 0;
 	}
 	Node( const yy::location& location, int op, std::string* pStr, Node* pNode ) :	m_Location( location ),
 																					m_OP( op ),
 																					m_Value( 0 ), m_pString( pStr ),
-																					m_pLeft( pNode ), m_pRight( 0 )
+																					m_pLeft( pNode ), m_pRight( 0 ), m_pGUValue( 0 )
 	{
-		m_GUValue.m_Value = 0;
 	}
-	Node( const yy::location& location, int op, GameEngine::ScriptGU& gu) :	m_Location( location ),
+	Node( const yy::location& location, int op, GameEngine::GameUnit* pGU ) :	m_Location( location ),
 																					m_OP( op ),
 																					m_Value( 0 ), m_pString( NULL ),
-																					m_pLeft( 0 ), m_pRight( 0 )
+																					m_pLeft( 0 ), m_pRight( 0 ), m_pGUValue( pGU )
 	{
-		m_GUValue.m_Value = gu.m_Value;
 	}
 	virtual ~Node()
 	{

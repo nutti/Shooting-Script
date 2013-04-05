@@ -2099,16 +2099,4 @@ void yyfree (void * ptr )
 
 void Compiler::ScanBegin()
 {
-	if( ( yyin = fopen( m_File.c_str(), "r" ) ) == 0 ){
-		error( m_File + "can not be opened." );
-	}
-}
-
-void Compiler::ScanEnd()
-{
-	fclose( yyin );
-	yylex_destroy();
-}
-
-
-                
+	if( ( yyin = fopen( m

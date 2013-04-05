@@ -126,12 +126,7 @@ blank		[ \t]
 						}
 						str[ len ] = '\0';
 						decimal = strtol( str, NULL, 10 );
-						if( integer > 0 ){
-							yylval->m_GUVal.m_Value = ( integer << GameEngine::GameUnit::SHIFT ) + decimal;
-						}
-						else{
-							yylval->m_GUVal.m_Value = - ( (-integer) << GameEngine::GameUnit::SHIFT ) + decimal;
-						}
+						yylval->m_pGUVal = new GameEngine::GameUnit( integer, decimal );
 						
 						return token::TOKEN_GVAL;
 					}
