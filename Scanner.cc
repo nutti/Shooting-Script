@@ -1078,19 +1078,14 @@ YY_RULE_SETUP
 						}
 						str[ len ] = '\0';
 						decimal = strtol( str, NULL, 10 );
-						if( integer > 0 ){
-							yylval->m_GUVal = ( integer << GameEngine::GameUnit::SHIFT ) + decimal;
-						}
-						else{
-							yylval->m_GUVal = - ( (-integer) << GameEngine::GameUnit::SHIFT ) + decimal;
-						}
+						yylval->m_pGUVal = new GameEngine::GameUnit( integer, decimal );
 						
 						return token::TOKEN_GVAL;
 					}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 140 "Scanner.ll"
+#line 135 "Scanner.ll"
 {
 						yylval->m_IntVal = 0;
 						return token::TOKEN_IVAL;
@@ -1098,7 +1093,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 145 "Scanner.ll"
+#line 140 "Scanner.ll"
 {
 						yylval->m_pStrVal = new std::string( yytext );
 						return token::TOKEN_IDENTIFIER;
@@ -1106,7 +1101,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 150 "Scanner.ll"
+#line 145 "Scanner.ll"
 compiler.error( *yylloc, "Can not use the character as identifier" );
 	YY_BREAK
 
@@ -1114,7 +1109,7 @@ compiler.error( *yylloc, "Can not use the character as identifier" );
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 153 "Scanner.ll"
+#line 148 "Scanner.ll"
 {
 						yylloc->lines();
 						compiler.error( *yylloc, "String is not closed." );
@@ -1123,7 +1118,7 @@ YY_RULE_SETUP
 					}
 	YY_BREAK
 case YY_STATE_EOF(STRING):
-#line 160 "Scanner.ll"
+#line 155 "Scanner.ll"
 {
 						compiler.error( *yylloc, "File is finished without closing the text file." );
 						string_buffer.clear();
@@ -1132,18 +1127,18 @@ case YY_STATE_EOF(STRING):
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 166 "Scanner.ll"
+#line 161 "Scanner.ll"
 { string_buffer += yytext; }
 	YY_BREAK
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 168 "Scanner.ll"
+#line 163 "Scanner.ll"
 yylloc->lines();
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 170 "Scanner.ll"
+#line 165 "Scanner.ll"
 {
 						switch( yytext[ yyleng - 1 ] ){
 							case 'n':
@@ -1157,7 +1152,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 182 "Scanner.ll"
+#line 177 "Scanner.ll"
 {
 						BEGIN( INITIAL );
 						yylval->m_pStrVal = new std::string( string_buffer );
@@ -1168,13 +1163,13 @@ YY_RULE_SETUP
 
 case 47:
 YY_RULE_SETUP
-#line 189 "Scanner.ll"
+#line 184 "Scanner.ll"
 
 	YY_BREAK
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 191 "Scanner.ll"
+#line 186 "Scanner.ll"
 {
 						yylloc->lines();
 						yylloc->step();
@@ -1185,42 +1180,42 @@ YY_RULE_SETUP
 
 case 49:
 YY_RULE_SETUP
-#line 198 "Scanner.ll"
+#line 193 "Scanner.ll"
 
 	YY_BREAK
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 200 "Scanner.ll"
+#line 195 "Scanner.ll"
 { yylloc->lines(); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 202 "Scanner.ll"
+#line 197 "Scanner.ll"
 
 	YY_BREAK
 case 52:
 /* rule 52 can match eol */
 YY_RULE_SETUP
-#line 204 "Scanner.ll"
+#line 199 "Scanner.ll"
 { yylloc->lines(); }
 	YY_BREAK
 case YY_STATE_EOF(COMMENT_C):
-#line 206 "Scanner.ll"
+#line 201 "Scanner.ll"
 compiler.error( *yylloc, "File is finished in comment processing" );
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 208 "Scanner.ll"
+#line 203 "Scanner.ll"
 BEGIN( INITIAL );
 	YY_BREAK
 
 case 54:
 YY_RULE_SETUP
-#line 210 "Scanner.ll"
+#line 205 "Scanner.ll"
 ECHO;
 	YY_BREAK
-#line 1224 "Scanner.cc"
+#line 1219 "Scanner.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT_CPP):
 	yyterminate();
@@ -2093,10 +2088,21 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 210 "Scanner.ll"
+#line 205 "Scanner.ll"
 
 
 
 void Compiler::ScanBegin()
 {
-	if( ( yyin = fopen( m
+	if( ( yyin = fopen( m_File.c_str(), "r" ) ) == 0 ){
+		error( m_File + "can not be opened." );
+	}
+}
+
+void Compiler::ScanEnd()
+{
+	fclose( yyin );
+	yylex_destroy();
+}
+
+
