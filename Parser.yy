@@ -55,7 +55,7 @@
 /* Float value */
 %token <m_FloatVal> TOKEN_FVAL			"fval"
 /* Game Unit value */
-%token <m_pGUVal > TOKEN_GVAL		"gval"
+%token <m_pGUVal> TOKEN_GVAL		"gval"
 /* Operations */
 %token			TOKEN_LOGOR			"||"
 %token			TOKEN_LOGAND			"&&"
