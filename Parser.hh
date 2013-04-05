@@ -42,9 +42,8 @@
 #include <string>
 #include <iostream>
 #include "stack.hh"
-#include "Parser.hh"
-#include "Node.h"
 #include "../Math.hpp"
+#include "Node.h"
 
 /* Line 35 of lalr1.cc  */
 #line 1 "[Bison:b4_percent_define_default]"
