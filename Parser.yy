@@ -25,7 +25,7 @@
 	std::string*	m_pStrVal;
 	float	m_FloatVal;
 	int		m_Type;
-	GameEngine::GameUnit*  m_pGUVal;
+	GameEngine::ScriptGU  m_GUVal;
 	ValueList*	m_pValueList;
 	ArgList*	m_pArgList;
 	DeclList*	m_pDeclList;
@@ -55,7 +55,7 @@
 /* Float value */
 %token <m_FloatVal> TOKEN_FVAL			"fval"
 /* Game Unit value */
-%token <m_pGUVal> TOKEN_GVAL		"gval"
+%token <m_GUVal> TOKEN_GVAL		"gval"
 /* Operations */
 %token			TOKEN_LOGOR			"||"
 %token			TOKEN_LOGAND			"&&"
@@ -105,7 +105,6 @@
 
 %destructor { delete $$; } "identifier"
 %destructor { delete $$; } "sval"
-%destructor { delete $$; } "gval"
 %destructor { delete $$; } vallist
 %destructor { delete $$; } arglist
 %destructor { delete $$; } argdef

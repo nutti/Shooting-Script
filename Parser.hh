@@ -42,9 +42,9 @@
 #include <string>
 #include <iostream>
 #include "stack.hh"
-#include "Node.h"
-#include "Parser.hh"
 #include "../Math.hpp"
+#include "Parser.hh"
+#include "Node.h"
 
 /* Line 35 of lalr1.cc  */
 #line 1 "[Bison:b4_percent_define_default]"
@@ -128,7 +128,7 @@ namespace yy {
 	std::string*	m_pStrVal;
 	float	m_FloatVal;
 	int		m_Type;
-	GameEngine::GameUnit*  m_pGUVal;
+	GameEngine::ScriptGU  m_GUVal;
 	ValueList*	m_pValueList;
 	ArgList*	m_pArgList;
 	DeclList*	m_pDeclList;

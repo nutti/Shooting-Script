@@ -126,7 +126,7 @@ blank		[ \t]
 						}
 						str[ len ] = '\0';
 						decimal = strtol( str, NULL, 10 );
-						yylval->m_pGUVal = new GameEngine::GameUnit( integer, decimal );
+						yylval->m_GUVal = GameEngine::MakeGU( integer, decimal );
 						
 						return token::TOKEN_GVAL;
 					}
